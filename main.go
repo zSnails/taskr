@@ -25,11 +25,11 @@ var (
 )
 
 func init() {
-	// flag.BoolVar(&modeAdd, "add", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&showAll, "all", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&noColor, "no-color", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&deletionMode, "delete", false, "TODO: give this a more detailed description")
-	// flag.Parse()
+	flag.BoolVar(&modeAdd, "add", false, "TODO: give this a more detailed description")
+	flag.BoolVar(&showAll, "all", false, "TODO: give this a more detailed description")
+	flag.BoolVar(&noColor, "no-color", false, "TODO: give this a more detailed description")
+	flag.BoolVar(&deletionMode, "delete", false, "TODO: give this a more detailed description")
+	flag.Parse()
 
 	// Check if there is a taskr folder in %APPDATA%
 	dataDir, err := os.UserCacheDir()
