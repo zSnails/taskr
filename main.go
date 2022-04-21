@@ -43,13 +43,6 @@ func init() {
 	}
 }
 
-// unpack que va dijo rafita
-func unpack(s []string, vars ...*string) {
-	for i, str := range s {
-		*vars[i] = str
-	}
-}
-
 func main() {
 	db, err := sql.Open("sqlite3", dataFile+"?cache=shared&mode=memory")
 	if err != nil {
