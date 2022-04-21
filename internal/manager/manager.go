@@ -3,7 +3,6 @@ package manager
 import (
 	"database/sql"
 	"time"
-	// "github.com/golang-module/carbon"
 )
 
 type Manager struct {
@@ -52,11 +51,6 @@ func (m *Manager) AddTask(taskdate time.Time, description string) (err error) {
 	return
 }
 
-/*
-Task struct type definition
-
-A struct to be used internally by the program, there's no reason anyone should be reading this lol
-*/
 type Task struct {
 	ID          int
 	Date        time.Time
@@ -77,11 +71,6 @@ func (m *Manager) RemoveTask(id int) (err error) {
 	return
 }
 
-/*
-GetTasks method retrieves all tasks from the database.
-
-If there are no tasks it returns an empty list.
-*/
 func (m *Manager) GetTasks() (tasks []Task, err error) {
 	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks")
 	if err != nil {
