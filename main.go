@@ -11,7 +11,6 @@ import (
 
 	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
-	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/manager"
 
 	_ "github.com/mattn/go-sqlite3"
