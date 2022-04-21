@@ -3,7 +3,6 @@ package main
 import (
 	// "context"
 	"database/sql"
-	"flag"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,21 +16,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	modeAdd      bool
-	dataFile     string
-	showAll      bool
-	noColor      bool
-	deletionMode bool
-)
+var dataFile string
 
 func init() {
-	// flag.BoolVar(&modeAdd, "add", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&showAll, "all", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&noColor, "no-color", false, "TODO: give this a more detailed description")
-	// flag.BoolVar(&deletionMode, "delete", false, "TODO: give this a more detailed description")
-	// flag.Parse()
-
 	// Check if there is a taskr folder in %APPDATA%
 	dataDir, err := os.UserCacheDir()
 	if err != nil {
@@ -64,10 +51,6 @@ func unpack(s []string, vars ...*string) {
 }
 
 func main() {
-	if noColor {
-		color.Disable()
-	}
-
 	db, err := sql.Open("sqlite3", dataFile+"?cache=shared&mode=memory")
 	if err != nil {
 		panic(err)
@@ -77,53 +60,90 @@ func main() {
 	mngr := manager.NewManager(db)
 	defer mngr.Close()
 
-	if modeAdd {
-		var taskDate string
-		var taskDescription string
+	addCommand := cli.NewCommand("new", "Create a new task").WithShortcut("n").WithArg(
+		cli.NewArg("date", "Task date").WithType(cli.TypeString),
+	).WithArg(
+		cli.NewArg("description", "Task description").WithType(cli.TypeString),
+	).WithAction(func(args []string, options map[string]string) int {
+		date := args[0]
+		t, err := time.Parse("2006-01-02 15:4:5", date)
+		if err != nil {
+			os.Stderr.WriteString(err.Error() + "\n")
+			return 1
+		}
 
-		unpack(flag.Args(), &taskDate, &taskDescription)
-		t, err := time.Parse("2006-01-02 15:4:5", taskDate)
+		desc := args[1]
+
+		err = mngr.AddTask(t, desc)
+		if err != nil {
+			os.Stderr.WriteString(err.Error() + "\n")
+			return 1
+		}
+		return 0
+	})
+
+	deleteCommand := cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
+		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
+	).WithAction(func(args []string, options map[string]string) int {
+
+		id, err := strconv.Atoi(args[0])
 		if err != nil {
 			panic(err)
 		}
 
-		err = mngr.AddTask(t, taskDescription)
-		if err != nil {
-			panic(err)
-		}
-	} else if deletionMode {
-
-		id, err := strconv.Atoi(flag.Args()[0])
-		if err != nil {
-			panic(err)
-		}
 		err = mngr.RemoveTask(id)
 		if err != nil {
 			panic(err)
 		}
-	} else {
-		var tasks []manager.Task
-		var err error
-		if showAll {
-			tasks, err = mngr.GetTasks()
-		} else {
-			tasks, err = mngr.ValidByDate()
-		}
-		if err != nil {
-			panic(err)
-		}
 
-		for _, task := range tasks {
-			carbonDate := carbon.CreateFromDateTime(
-				task.Date.Year(),
-				int(task.Date.Month()),
-				task.Date.Day(),
-				task.Date.Hour(),
-				task.Date.Minute(),
-				task.Date.Second(),
-			)
-			col := color.New(color.FgLightGreen)
-			fmt.Printf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description)
-		}
-	}
+		return 0
+	})
+
+	allCommand := cli.NewCommand("all", "Shows all tasks").WithAction(
+		func(args []string, options map[string]string) int {
+			var tasks []manager.Task
+			tasks, err = mngr.GetTasks()
+			if err != nil {
+				panic(err)
+			}
+
+			for _, task := range tasks {
+				carbonDate := carbon.CreateFromDateTime(
+					task.Date.Year(),
+					int(task.Date.Month()),
+					task.Date.Day(),
+					task.Date.Hour(),
+					task.Date.Minute(),
+					task.Date.Second(),
+				)
+				col := color.New(color.FgLightGreen)
+				fmt.Printf("%v - %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description)
+			}
+			return 0
+		},
+	)
+
+	app := cli.New("Tool for creating tasks").WithAction(
+		func(args []string, options map[string]string) int {
+			var tasks []manager.Task
+			tasks, err = mngr.ValidByDate()
+			if err != nil {
+				panic(err)
+			}
+
+			for _, task := range tasks {
+				carbonDate := carbon.CreateFromDateTime(
+					task.Date.Year(),
+					int(task.Date.Month()),
+					task.Date.Day(),
+					task.Date.Hour(),
+					task.Date.Minute(),
+					task.Date.Second(),
+				)
+				col := color.New(color.FgLightGreen)
+				fmt.Printf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description)
+			}
+			return 0
+		}).WithCommand(addCommand).WithCommand(deleteCommand).WithCommand(allCommand)
+	os.Exit(app.Run(os.Args, os.Stdout))
 }
