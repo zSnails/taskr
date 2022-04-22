@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-module/carbon"
@@ -94,49 +95,45 @@ func main() {
 
 	allCommand := cli.NewCommand("all", "Shows all tasks").WithAction(
 		func(args []string, options map[string]string) int {
-			var tasks []manager.Task
-			tasks, err = mngr.GetTasks()
+			tasks, err := mngr.GetTasks()
 			if err != nil {
 				panic(err)
 			}
-
-			for _, task := range tasks {
-				carbonDate := carbon.CreateFromDateTime(
-					task.Date.Year(),
-					int(task.Date.Month()),
-					task.Date.Day(),
-					task.Date.Hour(),
-					task.Date.Minute(),
-					task.Date.Second(),
-				)
-				col := color.New(color.FgLightGreen)
-				fmt.Printf("%v - %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description)
-			}
+			printTasks(tasks)
 			return 0
 		},
 	)
 
 	app := cli.New("Tool for creating tasks").WithAction(
 		func(args []string, options map[string]string) int {
-			var tasks []manager.Task
-			tasks, err = mngr.ValidByDate()
+			tasks, err := mngr.ValidByDate()
 			if err != nil {
-				panic(err)
+				return 1
 			}
-
-			for _, task := range tasks {
-				carbonDate := carbon.CreateFromDateTime(
-					task.Date.Year(),
-					int(task.Date.Month()),
-					task.Date.Day(),
-					task.Date.Hour(),
-					task.Date.Minute(),
-					task.Date.Second(),
-				)
-				col := color.New(color.FgLightGreen)
-				fmt.Printf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description)
-			}
+			printTasks(tasks)
 			return 0
 		}).WithCommand(addCommand).WithCommand(deleteCommand).WithCommand(allCommand)
 	os.Exit(app.Run(os.Args, os.Stdout))
+}
+
+func printTasks(tasks []manager.Task) {
+	str := strings.Builder{}
+	last := len(tasks) - 1
+	for i, task := range tasks {
+		carbonDate := carbon.CreateFromDateTime(
+			task.Date.Year(),
+			int(task.Date.Month()),
+			task.Date.Day(),
+			task.Date.Hour(),
+			task.Date.Minute(),
+			task.Date.Second(),
+		)
+		col := color.New(color.FgLightGreen)
+		end := "\n"
+		if last == i {
+			end = ""
+		}
+		str.WriteString(fmt.Sprintf("[%v] %v: %v%v", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description, end))
+	}
+	println(str.String())
 }
