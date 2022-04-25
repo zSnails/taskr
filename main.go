@@ -18,14 +18,13 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
 	"github.com/teris-io/cli"
-	"github.com/zSnails/taskr/internal/manager"
+	"github.com/zSnails/taskr/internal/command"
+	"github.com/zSnails/taskr/internal/store"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -64,60 +63,12 @@ func main() {
 	}
 	defer db.Close()
 
-	mngr := manager.NewManager(db)
+	mngr := store.NewManager(db)
 	defer mngr.Close()
 
-	addCommand := cli.NewCommand("new", "Create a new task").WithShortcut("n").WithArg(
-		cli.NewArg("date", "Task date").WithType(cli.TypeString),
-	).WithArg(
-		cli.NewArg("description", "Task description").WithType(cli.TypeString),
-	).WithAction(func(args []string, options map[string]string) int {
-		date := args[0]
-		t, err := time.Parse("2006-01-02 15:4:5", date)
-		if err != nil {
-			os.Stderr.WriteString(err.Error() + "\n")
-			return 1
-		}
+	app := cli.New("Tool for creating tasks")
 
-		desc := args[1]
-
-		err = mngr.AddTask(t, desc)
-		if err != nil {
-			os.Stderr.WriteString(err.Error() + "\n")
-			return 1
-		}
-		return 0
-	})
-
-	deleteCommand := cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
-		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
-	).WithAction(func(args []string, options map[string]string) int {
-
-		id, err := strconv.Atoi(args[0])
-		if err != nil {
-			panic(err)
-		}
-
-		err = mngr.RemoveTask(id)
-		if err != nil {
-			panic(err)
-		}
-
-		return 0
-	})
-
-	allCommand := cli.NewCommand("all", "Shows all tasks").WithAction(
-		func(args []string, options map[string]string) int {
-			tasks, err := mngr.GetTasks()
-			if err != nil {
-				panic(err)
-			}
-			printTasks(tasks)
-			return 0
-		},
-	)
-
-	app := cli.New("Tool for creating tasks").WithAction(
+     app.WithAction(
 		func(args []string, options map[string]string) int {
 			tasks, err := mngr.ValidByDate()
 			if err != nil {
@@ -125,14 +76,17 @@ func main() {
 			}
 			printTasks(tasks)
 			return 0
-		}).WithCommand(addCommand).WithCommand(deleteCommand).WithCommand(allCommand)
+		},
+      )
+
+	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.All(mngr))
+
 	os.Exit(app.Run(os.Args, os.Stdout))
 }
 
-func printTasks(tasks []manager.Task) {
+func printTasks(tasks []store.Task) {
 	str := strings.Builder{}
-	last := len(tasks) - 1
-	for i, task := range tasks {
+	for _, task := range tasks {
 		carbonDate := carbon.CreateFromDateTime(
 			task.Date.Year(),
 			int(task.Date.Month()),
@@ -142,11 +96,7 @@ func printTasks(tasks []manager.Task) {
 			task.Date.Second(),
 		)
 		col := color.New(color.FgLightGreen)
-		end := "\n"
-		if last == i {
-			end = ""
-		}
-		str.WriteString(fmt.Sprintf("[%v] %v: %v%v", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description, end))
+		str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
 	}
-	println(str.String())
+	print(str.String())
 }
