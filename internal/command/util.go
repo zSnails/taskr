@@ -23,7 +23,7 @@ import (
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func printTasks(tasks []store.Task) {
+func PrintTasks(tasks []store.Task) {
 	str := strings.Builder{}
 	for _, task := range tasks {
 		carbonDate := carbon.CreateFromDateTime(

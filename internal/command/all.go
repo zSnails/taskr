@@ -26,7 +26,7 @@ func All(manager *store.Manager) cli.Command {
 			if err != nil {
 				panic(err)
 			}
-			printTasks(tasks)
+			PrintTasks(tasks)
 			return 0
 		},
 	)

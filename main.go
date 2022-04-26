@@ -16,15 +16,10 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"strings"
-
-	"github.com/golang-module/carbon"
-	"github.com/gookit/color"
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/command"
 	"github.com/zSnails/taskr/internal/store"
+	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -68,35 +63,18 @@ func main() {
 
 	app := cli.New("Tool for creating tasks")
 
-     app.WithAction(
+	app.WithAction(
 		func(args []string, options map[string]string) int {
 			tasks, err := mngr.ValidByDate()
 			if err != nil {
 				return 1
 			}
-			printTasks(tasks)
+			command.PrintTasks(tasks)
 			return 0
 		},
-      )
+	)
 
 	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.All(mngr))
 
 	os.Exit(app.Run(os.Args, os.Stdout))
-}
-
-func printTasks(tasks []store.Task) {
-	str := strings.Builder{}
-	for _, task := range tasks {
-		carbonDate := carbon.CreateFromDateTime(
-			task.Date.Year(),
-			int(task.Date.Month()),
-			task.Date.Day(),
-			task.Date.Hour(),
-			task.Date.Minute(),
-			task.Date.Second(),
-		)
-		col := color.New(color.FgLightGreen)
-		str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
-	}
-	print(str.String())
 }
