@@ -22,12 +22,15 @@ import (
 func All(manager *store.Manager) cli.Command {
     return cli.NewCommand("all", "Shows all tasks").WithAction(
 		func(args []string, options map[string]string) int {
+
+              _, verbose := options["verbose"]
+
 			tasks, err := manager.GetTasks()
 			if err != nil {
 				panic(err)
 			}
-			PrintTasks(tasks)
-			return 0
+			PrintTasks(tasks, verbose)
+               return 0
 		},
 	)
 

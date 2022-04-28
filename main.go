@@ -65,16 +65,17 @@ func main() {
 
 	app.WithAction(
 		func(args []string, options map[string]string) int {
+			_, verbose := options["verbose"]
 			tasks, err := mngr.ValidByDate()
 			if err != nil {
 				return 1
 			}
-			command.PrintTasks(tasks)
+			command.PrintTasks(tasks, verbose)
 			return 0
 		},
 	)
 
 	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.All(mngr))
-
+	app.WithOption(cli.NewOption("verbose", "Show verbose output").WithType(cli.TypeBool).WithChar('v'))
 	os.Exit(app.Run(os.Args, os.Stdout))
 }

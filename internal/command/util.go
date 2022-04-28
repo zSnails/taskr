@@ -15,15 +15,15 @@
 package command
 
 import (
-	"strings"
 	"fmt"
+	"strings"
 
 	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func PrintTasks(tasks []store.Task) {
+func PrintTasks(tasks []store.Task, verbose bool) {
 	str := strings.Builder{}
 	for _, task := range tasks {
 		carbonDate := carbon.CreateFromDateTime(
@@ -36,7 +36,13 @@ func PrintTasks(tasks []store.Task) {
 		)
 
 		col := color.New(color.FgLightGreen)
-		str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
+
+		if verbose {
+			str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
+			continue
+		}
+
+		str.WriteString(fmt.Sprintf("%v: %v\n", col.Sprint(carbonDate.DiffForHumans()), task.Description))
 	}
 	print(str.String())
 }
