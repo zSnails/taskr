@@ -16,10 +16,12 @@ package main
 
 import (
 	"database/sql"
+	"os"
+
+	"github.com/gookit/color"
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/command"
 	"github.com/zSnails/taskr/internal/store"
-	"os"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -65,8 +67,11 @@ func main() {
 
 	app.WithAction(
 		func(args []string, options map[string]string) int {
+			if _, noColor := options["no-color"]; noColor {
+				color.Disable()
+			}
 			_, verbose := options["verbose"]
-			tasks, err := mngr.ValidByDate()
+			tasks, err := mngr.Today()
 			if err != nil {
 				return 1
 			}
@@ -74,8 +79,8 @@ func main() {
 			return 0
 		},
 	)
-
 	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.All(mngr))
 	app.WithOption(cli.NewOption("verbose", "Show verbose output").WithType(cli.TypeBool).WithChar('v'))
+	app.WithOption(cli.NewOption("no-color", "Disable colored output").WithType(cli.TypeBool).WithChar('c'))
 	os.Exit(app.Run(os.Args, os.Stdout))
 }

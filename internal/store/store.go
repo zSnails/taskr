@@ -85,7 +85,7 @@ func (m *Manager) RemoveTask(id int) (err error) {
 	return
 }
 
-func (m *Manager) GetTasks() (tasks []Task, err error) {
+func (m *Manager) All() (tasks []Task, err error) {
 	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks")
 	if err != nil {
 		return
@@ -103,7 +103,7 @@ func (m *Manager) GetTasks() (tasks []Task, err error) {
 	return
 }
 
-func (m *Manager) ValidByDate() (tasks []Task, err error) {
+func (m *Manager) Today() (tasks []Task, err error) {
 	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks WHERE date('now') < taskdate")
 	if err != nil {
 		return

@@ -15,22 +15,25 @@
 package command
 
 import (
+	"github.com/gookit/color"
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
 
 func All(manager *store.Manager) cli.Command {
-    return cli.NewCommand("all", "Shows all tasks").WithAction(
+	return cli.NewCommand("all", "Shows all tasks").WithAction(
 		func(args []string, options map[string]string) int {
+			if _, noColor := options["no-color"]; noColor {
+				color.Disable()
+			}
+			_, verbose := options["verbose"]
 
-              _, verbose := options["verbose"]
-
-			tasks, err := manager.GetTasks()
+			tasks, err := manager.All()
 			if err != nil {
 				panic(err)
 			}
 			PrintTasks(tasks, verbose)
-               return 0
+			return 0
 		},
 	)
 
