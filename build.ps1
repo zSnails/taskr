@@ -1,6 +1,6 @@
 $GIT_COMMIT = git rev-list -1 HEAD
 $GIT_USERNAME = git config --get user.name
-$PROGRAM_VERSION = "0.2.1"
+$PROGRAM_VERSION = "1.0.0"
 
 go build `
     -ldflags `
