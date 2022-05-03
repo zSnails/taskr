@@ -12,7 +12,7 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-package store 
+package store
 
 import (
 	"database/sql"
@@ -28,11 +28,11 @@ func NewManager(db *sql.DB) (m *Manager) {
 	m = &Manager{}
 	m.db = db
 	m.today = time.Now()
-	m.CheckTable()
+	m.checkTable()
 	return
 }
 
-func (m *Manager) CheckTable() {
+func (m *Manager) checkTable() {
 	_, err := m.db.Query("SELECT * FROM tasks")
 
 	if err != nil {
@@ -82,37 +82,6 @@ func (m *Manager) RemoveTask(id int) (err error) {
 		return
 	}
 
-	return
-}
-
-func (m *Manager) All() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks")
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		task := Task{}
-		var _date string
-		rows.Scan(&task.ID, &_date, &task.Description)
-		task.Date, err = time.Parse("2006-01-02T15:4:5Z", _date)
-		if err != nil {
-			return
-		}
-		tasks = append(tasks, task)
-	}
-	return
-}
-
-func (m *Manager) Today() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks WHERE date('now') < taskdate")
-	if err != nil {
-		return
-	}
-	for rows.Next() {
-		task := Task{}
-		rows.Scan(&task.ID, &task.Date, &task.Description)
-		tasks = append(tasks, task)
-	}
 	return
 }
 
