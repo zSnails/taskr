@@ -15,8 +15,6 @@
 package command
 
 import (
-	"strconv"
-
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
@@ -25,14 +23,10 @@ func Delete(manager *store.Manager) cli.Command {
 	return cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
 		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
 	).WithAction(func(args []string, options map[string]string) int {
-		id, err := strconv.Atoi(args[0])
+        err := manager.RemoveTask(args[0])
 		if err != nil {
-			panic(err)
-		}
-
-		err = manager.RemoveTask(id)
-		if err != nil {
-			panic(err)
+			println(err)
+            return 0
 		}
 
 		return 0
