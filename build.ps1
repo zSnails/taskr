@@ -1,7 +1,9 @@
-$GIT_COMMIT = git rev-list -1 HEAD
+$GIT_COMMIT = git rev-parse --short HEAD
 $GIT_USERNAME = git config --get user.name
-$PROGRAM_VERSION = "1.0.0"
+$MODULE = "github.com/zSnails/taskr"
+$PROGRAM_VERSION = "2.0.0"
 
-go build `
-    -ldflags `
-        "-s -w -X main.gitCommit=$($GIT_COMMIT) -X main.buildUser=$($GIT_USERNAME) -X main.programVersion=$($PROGRAM_VERSION)"
+$LD_FLAGS = "-s -w -X '$($MODULE)/internal/command.CommitHash=$($GIT_COMMIT)' -X '$($MODULE)/internal/command.BuildUser=$($GIT_USERNAME)' -X '$($MODULE)/internal/command.Version=$($PROGRAM_VERSION)'"
+echo $LD_FLAGS
+
+go build -ldflags="$($LD_FLAGS)"
