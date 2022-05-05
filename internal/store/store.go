@@ -42,7 +42,7 @@ func (m *Manager) checkTable() {
 }
 
 func (m *Manager) initDB() {
-	creation, err := m.db.Prepare("CREATE TABLE tasks (id INTEGER PRIMARY KEY, taskdate DATE, description TEXT)")
+	creation, err := m.db.Prepare("CREATE TABLE tasks (id INTEGER PRIMARY KEY, taskdate DATE, description TEXT, done BOOL DEFAULT FALSE NOT NULL)")
 	if err != nil {
 		panic(err)
 	}
@@ -65,13 +65,7 @@ func (m *Manager) AddTask(taskdate time.Time, description string) (err error) {
 	return
 }
 
-type Task struct {
-	ID          int
-	Date        time.Time
-	Description string
-}
-
-func (m *Manager) RemoveTask(id int) (err error) {
+func (m *Manager) RemoveTask(id string) (err error) {
 	statement, err := m.db.Prepare("DELETE FROM tasks where id = ?")
 	if err != nil {
 		panic(err)
