@@ -18,34 +18,35 @@ import (
 	"time"
 )
 
+type Task struct {
+	ID          int
+	Date        time.Time
+	Description string
+	Done        bool
+}
 
 func (m *Manager) All() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks")
+	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks")
 	if err != nil {
 		return
 	}
 	for rows.Next() {
 		task := Task{}
-		var _date string
-		rows.Scan(&task.ID, &_date, &task.Description)
-		task.Date, err = time.Parse("2006-01-02T15:4:5Z", _date)
-		if err != nil {
-			return
-		}
+		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
 		tasks = append(tasks, task)
 	}
 	return
 }
 
 func (m *Manager) Valid() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description FROM tasks WHERE date('now') < taskdate AND taskdate < date('now', '+7 days')")
+	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks WHERE date('now') < taskdate AND taskdate < date('now', '+7 days') AND done IS NOT TRUE")
 	if err != nil {
 		return
 	}
 
 	for rows.Next() {
 		task := Task{}
-		rows.Scan(&task.ID, &task.Date, &task.Description)
+		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
 		tasks = append(tasks, task)
 	}
 	return
