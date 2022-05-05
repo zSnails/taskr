@@ -16,10 +16,8 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 
-	"github.com/gookit/color"
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/command"
 	"github.com/zSnails/taskr/internal/store"
@@ -27,13 +25,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var (
-	dataFile       string
-	gitCommit      = ""
-	buildUser      = ""
-	programVersion = ""
-	license        = "Copyright (C) 2022  %v\nThis program comes with ABSOLUTELY NO warranty\nThis is free software, and you are welcome to redistribute it\nunder certain conditions."
-)
+var dataFile string
 
 func init() {
 	// Check if there is a taskr folder in %APPDATA%
@@ -72,35 +64,13 @@ func main() {
 
 	app := cli.New("Tool for creating tasks")
 
-	app.WithAction(
-		func(args []string, options map[string]string) int {
-			if _, version := options["version"]; version {
-				fmt.Printf("taskr (built by %v) %v %v\n",
-					buildUser,
-					programVersion,
-					gitCommit,
-				)
-				fmt.Printf(license, buildUser)
-				return 0
-			}
+	app.WithAction(command.Action(mngr))
+	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.Toggle(mngr))
 
-			if _, noColor := options["no-color"]; noColor {
-				color.Disable()
-			}
-			_, verbose := options["verbose"]
-			tasks, err := mngr.Valid()
-			if err != nil {
-				println(err.Error())
-				return 1
-			}
-			command.PrintTasks(tasks, verbose)
-			return 0
-		},
-	)
-
-	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.All(mngr))
 	app.WithOption(cli.NewOption("verbose", "Show verbose output").WithType(cli.TypeBool).WithChar('v'))
 	app.WithOption(cli.NewOption("no-color", "Disable colored output").WithType(cli.TypeBool).WithChar('c'))
 	app.WithOption(cli.NewOption("version", "Shows program version info").WithType(cli.TypeBool).WithChar('V'))
+	app.WithOption(cli.NewOption("all", "Shows all tasks").WithType(cli.TypeBool).WithChar('a'))
+
 	os.Exit(app.Run(os.Args, os.Stdout))
 }
