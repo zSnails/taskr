@@ -34,8 +34,14 @@ func PrintTasks(tasks []store.Task, verbose bool) {
 			task.Date.Minute(),
 			task.Date.Second(),
 		)
-
-		col := color.New(color.FgLightGreen)
+		var col color.Style
+		if task.Done {
+			col = color.New(color.FgLightGreen, color.OpStrikethrough)
+		} else if task.Expired {
+			col = color.New(color.FgRed)
+		} else {
+			col = color.New(color.FgYellow)
+		}
 
 		if verbose {
 			str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
