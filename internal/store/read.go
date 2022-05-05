@@ -23,16 +23,17 @@ type Task struct {
 	Date        time.Time
 	Description string
 	Done        bool
+	Expired     bool
 }
 
 func (m *Manager) All() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks")
+	rows, err := m.db.Query("SELECT id, taskdate, description, done, (taskdate < datetime('now', 'localtime')) FROM tasks")
 	if err != nil {
 		return
 	}
 	for rows.Next() {
 		task := Task{}
-		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
+		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done, &task.Expired)
 		tasks = append(tasks, task)
 	}
 	return
