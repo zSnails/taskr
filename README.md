@@ -19,6 +19,8 @@ go install github.com/zSnails/taskr@latest
     
 ## Usage/Examples
 
+> Run `taskr --help` to get more detailed help
+
 ```bash
 taskr new <date> <description>
 # this will create a new task
