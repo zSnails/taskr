@@ -40,7 +40,7 @@ func (m *Manager) All() (tasks []Task, err error) {
 }
 
 func (m *Manager) Valid() (tasks []Task, err error) {
-	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks WHERE date('now') < taskdate AND taskdate < date('now', '+7 days') AND done IS NOT TRUE")
+	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks WHERE date('now') < taskdate AND taskdate < date('now', '+7 days', 'localtime') AND done IS NOT TRUE")
 	if err != nil {
 		return
 	}

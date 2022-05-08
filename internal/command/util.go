@@ -20,10 +20,13 @@ import (
 
 	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
+	"github.com/zSnails/taskr/internal/resources"
 	"github.com/zSnails/taskr/internal/store"
 )
 
 func PrintTasks(tasks []store.Task, verbose bool) {
+	lang := carbon.NewLanguage()
+	lang.SetResources(resources.Resources)
 	str := strings.Builder{}
 	for _, task := range tasks {
 		carbonDate := carbon.CreateFromDateTime(
@@ -34,7 +37,9 @@ func PrintTasks(tasks []store.Task, verbose bool) {
 			task.Date.Minute(),
 			task.Date.Second(),
 		)
+
 		var col color.Style
+
 		if task.Done {
 			col = color.New(color.FgLightGreen, color.OpStrikethrough)
 		} else if task.Expired {
@@ -43,12 +48,14 @@ func PrintTasks(tasks []store.Task, verbose bool) {
 			col = color.New(color.FgYellow)
 		}
 
+		diff := col.Sprint(carbonDate.SetLanguage(lang).DiffForHumans())
+
 		if verbose {
-			str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, col.Sprint(carbonDate.DiffForHumans()), task.Description))
+			str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, diff, task.Description))
 			continue
 		}
 
-		str.WriteString(fmt.Sprintf("%v: %v\n", col.Sprint(carbonDate.DiffForHumans()), task.Description))
+		str.WriteString(fmt.Sprintf("%v: %v\n", diff, task.Description))
 	}
 	print(str.String())
 }
