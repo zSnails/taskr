@@ -59,7 +59,6 @@ func Action(mngr *store.Manager) cli.Action {
 			println(err.Error())
 			return 1
 		}
-		PrintTasks(tasks, verbose)
-		return 0
+		return PrintTasks(tasks, verbose)
 	}
 }

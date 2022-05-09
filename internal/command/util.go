@@ -16,30 +16,19 @@ package command
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
-	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
-	"github.com/zSnails/taskr/internal/resources"
+	"github.com/uniplaces/carbon"
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func PrintTasks(tasks []store.Task, verbose bool) {
-	lang := carbon.NewLanguage()
-	lang.SetResources(resources.Resources)
+func PrintTasks(tasks []store.Task, verbose bool) int {
 	str := strings.Builder{}
 	for _, task := range tasks {
-		carbonDate := carbon.CreateFromDateTime(
-			task.Date.Year(),
-			int(task.Date.Month()),
-			task.Date.Day(),
-			task.Date.Hour(),
-			task.Date.Minute(),
-			task.Date.Second(),
-		)
-
+		carbonDate := carbon.NewCarbon(task.Date)
 		var col color.Style
-
 		if task.Done {
 			col = color.New(color.FgLightGreen, color.OpStrikethrough)
 		} else if task.Expired {
@@ -47,15 +36,19 @@ func PrintTasks(tasks []store.Task, verbose bool) {
 		} else {
 			col = color.New(color.FgYellow)
 		}
+		diff, err := carbonDate.DiffForHumans(nil, true, false, false)
+		if err != nil {
+			os.Stderr.WriteString(err.Error())
+			return 1
+		}
 
-		diff := col.Sprint(carbonDate.SetLanguage(lang).DiffForHumans())
-
+		diff = col.Sprint(diff)
 		if verbose {
-			str.WriteString(fmt.Sprintf("[%v] %v: %v\n", task.ID, diff, task.Description))
-			continue
+			str.WriteString(fmt.Sprintf("[%v] ", task.ID))
 		}
 
 		str.WriteString(fmt.Sprintf("%v: %v\n", diff, task.Description))
 	}
 	print(str.String())
+	return 0
 }
