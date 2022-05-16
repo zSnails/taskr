@@ -63,7 +63,6 @@ func main() {
 	defer mngr.Close()
 
 	app := cli.New("Tool for creating tasks")
-
 	app.WithAction(command.Action(mngr))
 	app.WithCommand(command.Add(mngr)).WithCommand(command.Delete(mngr)).WithCommand(command.Toggle(mngr))
 

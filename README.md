@@ -21,7 +21,7 @@ go install github.com/zSnails/taskr@latest
 
 > Run `taskr --help` to get more detailed help
 
-```bash
+```ps1
 taskr new <date> <description>
 # this will create a new task
 # for example
@@ -32,7 +32,7 @@ taskr delete <id>
 # for example
 taskr delete 5
 
-taskr all
+taskr --all
 # this will show all tasks, taskr by default only shows future tasks
 ```
 

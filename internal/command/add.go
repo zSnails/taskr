@@ -15,10 +15,12 @@
 package command
 
 import (
-	"github.com/teris-io/cli"
-	"github.com/zSnails/taskr/internal/store"
+	"fmt"
 	"os"
 	"time"
+
+	"github.com/teris-io/cli"
+	"github.com/zSnails/taskr/internal/store"
 )
 
 func Add(manager *store.Manager) cli.Command {
@@ -30,15 +32,14 @@ func Add(manager *store.Manager) cli.Command {
 		date := args[0]
 		t, err := time.Parse("2006-01-02 15:4:5", date)
 		if err != nil {
-			os.Stderr.WriteString(err.Error() + "\n")
+			fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 
 		desc := args[1]
-
 		err = manager.AddTask(t, desc)
 		if err != nil {
-			os.Stderr.WriteString(err.Error() + "\n")
+            fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 		return 0

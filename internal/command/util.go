@@ -24,7 +24,7 @@ import (
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func PrintTasks(tasks []store.Task, verbose bool) int {
+func printTasks(tasks []store.Task, verbose bool) int {
 	str := strings.Builder{}
 	for _, task := range tasks {
 		carbonDate := carbon.NewCarbon(task.Date)
@@ -38,17 +38,18 @@ func PrintTasks(tasks []store.Task, verbose bool) int {
 		}
 		diff, err := carbonDate.DiffForHumans(nil, true, false, false)
 		if err != nil {
-			os.Stderr.WriteString(err.Error())
+            fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 
 		diff = col.Sprint(diff)
 		if verbose {
-			str.WriteString(fmt.Sprintf("[%v] ", task.ID))
+            fmt.Fprintf(&str, "[%v] ", task.ID)
 		}
 
-		str.WriteString(fmt.Sprintf("%v: %v\n", diff, task.Description))
+        fmt.Fprintf(&str, "%v: %v\n", diff, task.Description)
 	}
-	print(str.String())
+
+	fmt.Print(str.String())
 	return 0
 }
