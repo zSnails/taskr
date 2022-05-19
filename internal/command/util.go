@@ -16,18 +16,27 @@ package command
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
+	"github.com/golang-module/carbon"
 	"github.com/gookit/color"
-	"github.com/uniplaces/carbon"
+	"github.com/zSnails/taskr/internal/resources"
 	"github.com/zSnails/taskr/internal/store"
 )
 
 func printTasks(tasks []store.Task, verbose bool) int {
 	str := strings.Builder{}
+    lang := carbon.NewLanguage()
+    lang.SetResources(resources.Resources)
 	for _, task := range tasks {
-		carbonDate := carbon.NewCarbon(task.Date)
+        carbonDate := carbon.CreateFromDateTime(
+            task.Date.Year(),
+            int(task.Date.Month()),
+            task.Date.Day(),
+            task.Date.Hour(),
+            task.Date.Minute(),
+            task.Date.Second(),
+        )
 		var col color.Style
 		if task.Done {
 			col = color.New(color.FgLightGreen, color.OpStrikethrough)
@@ -36,11 +45,8 @@ func printTasks(tasks []store.Task, verbose bool) int {
 		} else {
 			col = color.New(color.FgYellow)
 		}
-		diff, err := carbonDate.DiffForHumans(nil, true, false, false)
-		if err != nil {
-            fmt.Fprintf(os.Stderr, err.Error())
-			return 1
-		}
+
+        diff := carbonDate.SetLanguage(lang).DiffForHumans()
 
 		diff = col.Sprint(diff)
 		if verbose {
