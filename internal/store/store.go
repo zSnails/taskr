@@ -28,10 +28,11 @@ func NewManager(db *sql.DB) (m *Manager) {
 	m = &Manager{}
 	m.db = db
 	m.today = time.Now()
-	m.checkTable()
+	m.initDB()
 	return
 }
 
+// Deprecated: for some reason I was doing this instead of CREATE IF NOT EXISTS LOL
 func (m *Manager) checkTable() {
 	_, err := m.db.Query("SELECT * FROM tasks")
 
@@ -42,7 +43,7 @@ func (m *Manager) checkTable() {
 }
 
 func (m *Manager) initDB() {
-	creation, err := m.db.Prepare("CREATE TABLE tasks (id INTEGER PRIMARY KEY, taskdate DATE, description TEXT, done BOOL DEFAULT FALSE NOT NULL)")
+	creation, err := m.db.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, taskdate DATE, description TEXT, done BOOL DEFAULT FALSE NOT NULL)")
 	if err != nil {
 		panic(err)
 	}
