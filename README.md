@@ -13,6 +13,8 @@ You can either install it via `go install` or just download the binary file
 
 This will install the latest version
 
+Clone the repo and run `make install` to install
+
 ```bash
 go install github.com/zSnails/taskr@latest
 ```
