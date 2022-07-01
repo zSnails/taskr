@@ -37,7 +37,7 @@ func init() {
 
 	_, err = os.Stat(dataDir + "/taskr")
 	if os.IsNotExist(err) {
-		err = os.Mkdir(dataDir+"/taskr", os.ModeDir)
+		err = os.Mkdir(dataDir+"/taskr", os.ModeDir | os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
