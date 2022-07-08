@@ -52,3 +52,19 @@ func (m *Manager) Valid() (tasks []Task, err error) {
 	}
 	return
 }
+
+func (m *Manager) NotDone() (tasks []Task, any bool, err error) {
+	rows, err := m.db.Query(`SELECT id, taskdate, description, done FROM tasks WHERE taskdate < date('now','+1 days', 'localtime') AND done IS NOT TRUE`)
+	if err != nil {
+		return
+	}
+
+	for rows.Next() {
+		task := Task{}
+		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
+		tasks = append(tasks, task)
+        any = true
+    }
+
+	return
+}

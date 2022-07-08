@@ -37,7 +37,7 @@ func Action(mngr *store.Manager) cli.Action {
 				Version,
 				CommitHash,
 			)
-			println(license)
+			fmt.Println(license)
 			return 0
 		}
 
@@ -50,9 +50,18 @@ func Action(mngr *store.Manager) cli.Action {
 			err   error
 		)
 
+		reminders, any, err := mngr.NotDone()
+		if err != nil {
+			println(err.Error())
+			return 1
+		}
+
 		if _, showAll := options["all"]; showAll {
 			tasks, err = mngr.All()
 		} else {
+			if _, remind := options["reminders"]; any && !remind {
+				printReminders(reminders, verbose)
+			}
 			tasks, err = mngr.Valid()
 		}
 		if err != nil {

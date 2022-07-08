@@ -24,10 +24,16 @@ import (
 	"github.com/zSnails/taskr/internal/store"
 )
 
+var (
+    lang = carbon.NewLanguage()
+)
+
+func init() {
+    lang.SetResources(resources.Resources)
+}
+
 func printTasks(tasks []store.Task, verbose bool) int {
 	str := strings.Builder{}
-    lang := carbon.NewLanguage()
-    lang.SetResources(resources.Resources)
 	for _, task := range tasks {
         carbonDate := carbon.CreateFromDateTime(
             task.Date.Year(),
@@ -45,10 +51,7 @@ func printTasks(tasks []store.Task, verbose bool) int {
 		} else {
 			col = color.New(color.FgYellow)
 		}
-
-        diff := carbonDate.SetLanguage(lang).DiffForHumans()
-
-		diff = col.Sprint(diff)
+        diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
 		if verbose {
             fmt.Fprintf(&str, "[%v] ", task.ID)
 		}
@@ -58,4 +61,30 @@ func printTasks(tasks []store.Task, verbose bool) int {
 
 	fmt.Print(str.String())
 	return 0
+}
+
+func printReminders(tasks []store.Task, verbose bool) {
+    str := strings.Builder{}
+    fmt.Fprintln(&str, "The following tasks have expired but have not\nbeen marked as done:")
+    for _, reminder := range tasks {
+        carbonDate := carbon.CreateFromDateTime(
+            reminder.Date.Year(),
+            int(reminder.Date.Month()),
+            reminder.Date.Day(),
+            reminder.Date.Hour(),
+            reminder.Date.Minute(),
+            reminder.Date.Second(),
+        )
+
+        col := color.New(color.FgRed)
+        diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
+        fmt.Fprint(&str, "\t- ")
+        if verbose {
+            fmt.Fprintf(&str, "[%v] ", reminder.ID)
+        }
+
+        fmt.Fprintf(&str, "%v: %v\n", diff, reminder.Description)
+    }
+
+    fmt.Print(str.String())
 }
