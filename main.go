@@ -25,7 +25,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var dataFile string
+var fileName string
 
 func init() {
 	// Check if there is a taskr folder in %APPDATA%
@@ -33,11 +33,11 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	dataFile = dataDir + "/taskr/data.db"
+	fileName = dataDir + "/taskr/data.db"
 
 	_, err = os.Stat(dataDir + "/taskr")
 	if os.IsNotExist(err) {
-		err = os.Mkdir(dataDir+"/taskr", os.ModeDir | os.ModePerm)
+		err = os.Mkdir(dataDir+"/taskr", os.ModeDir|os.ModePerm)
 		if err != nil {
 			panic(err)
 		}
@@ -53,7 +53,7 @@ func init() {
 }
 
 func main() {
-	db, err := sql.Open("sqlite3", dataFile+"?cache=shared&mode=memory")
+	db, err := sql.Open("sqlite3", fileName+"?cache=shared&mode=memory")
 	if err != nil {
 		panic(err)
 	}
@@ -70,6 +70,7 @@ func main() {
 	app.WithOption(cli.NewOption("no-color", "Disable colored output").WithType(cli.TypeBool).WithChar('c'))
 	app.WithOption(cli.NewOption("version", "Shows program version info").WithType(cli.TypeBool).WithChar('V'))
 	app.WithOption(cli.NewOption("all", "Shows all tasks").WithType(cli.TypeBool).WithChar('a'))
+    app.WithOption(cli.NewOption("reminders", "Whether or not to show expiration reminders").WithType(cli.TypeBool).WithChar('r'))
 
 	os.Exit(app.Run(os.Args, os.Stdout))
 }
