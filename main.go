@@ -28,7 +28,7 @@ import (
 var fileName string
 
 func init() {
-	// Check if there is a taskr folder in %APPDATA%
+	// Check if there is a taskr folder in the user's cache dir
 	dataDir, err := os.UserCacheDir()
 	if err != nil {
 		panic(err)
@@ -70,7 +70,7 @@ func main() {
 	app.WithOption(cli.NewOption("no-color", "Disable colored output").WithType(cli.TypeBool).WithChar('c'))
 	app.WithOption(cli.NewOption("version", "Shows program version info").WithType(cli.TypeBool).WithChar('V'))
 	app.WithOption(cli.NewOption("all", "Shows all tasks").WithType(cli.TypeBool).WithChar('a'))
-    app.WithOption(cli.NewOption("reminders", "Whether or not to show expiration reminders").WithType(cli.TypeBool).WithChar('r'))
+	app.WithOption(cli.NewOption("reminders", "Whether or not to show expiration reminders").WithType(cli.TypeBool).WithChar('r'))
 
 	os.Exit(app.Run(os.Args, os.Stdout))
 }
