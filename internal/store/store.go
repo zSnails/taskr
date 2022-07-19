@@ -21,34 +21,36 @@ import (
 
 type Manager struct {
 	db    *sql.DB
-	today time.Time
+
+    // Deprecated: I was going to do something 
+    // with this but I forgot about it
+	// today time.Time
 }
 
-func NewManager(db *sql.DB) (m *Manager) {
+func NewManager(db *sql.DB) (m *Manager, err error) {
 	m = &Manager{}
 	m.db = db
-	m.today = time.Now()
-	m.initDB()
+	// m.today = time.Now()
+	err = m.initDB()
 	return
 }
 
-// Deprecated: for some reason I was doing this instead of CREATE IF NOT EXISTS LOL
-func (m *Manager) checkTable() {
-	_, err := m.db.Query("SELECT * FROM tasks")
-
-	if err != nil {
-		m.initDB()
-		return
-	}
-}
-
-func (m *Manager) initDB() {
+func (m *Manager) initDB() (err error) {
 	creation, err := m.db.Prepare("CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, taskdate DATE, description TEXT, done BOOL DEFAULT FALSE NOT NULL)")
 	if err != nil {
-		panic(err)
+		return
 	}
 	defer creation.Close()
 	creation.Exec()
+
+	reminders, err := m.db.Prepare("CREATE TABLE IF NOT EXISTS reminders (id INTEGER PRIMARY KEY, hour DATE, description TEXT)")
+	if err != nil {
+		return
+	}
+	defer reminders.Close()
+	reminders.Exec()
+
+	return
 }
 
 func (m *Manager) AddTask(taskdate time.Time, description string) (err error) {
@@ -69,8 +71,39 @@ func (m *Manager) AddTask(taskdate time.Time, description string) (err error) {
 func (m *Manager) RemoveTask(id string) (err error) {
 	statement, err := m.db.Prepare("DELETE FROM tasks where id = ?")
 	if err != nil {
-		panic(err)
+        return
 	}
+	defer statement.Close()
+
+	_, err = statement.Exec(id)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (m *Manager) AddReminder(t time.Time, description string) (err error) {
+	insertion, err := m.db.Prepare("INSERT INTO reminders (hour, description) VALUES (?, ?)")
+	if err != nil {
+		return
+	}
+	defer insertion.Close()
+
+    _, err = insertion.Exec(t, description)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (m *Manager) RemoveReminder(id string) (err error) {
+	statement, err := m.db.Prepare("DELETE FROM reminders WHERE id = ?")
+	if err != nil {
+		return
+	}
+	defer statement.Close()
 
 	_, err = statement.Exec(id)
 	if err != nil {

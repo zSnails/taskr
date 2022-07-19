@@ -18,6 +18,12 @@ import (
 	"time"
 )
 
+type Reminder struct {
+	ID          int
+	Hour        time.Time
+	Description string
+}
+
 type Task struct {
 	ID          int
 	Date        time.Time
@@ -26,24 +32,46 @@ type Task struct {
 	Expired     bool
 }
 
-func (m *Manager) All() (tasks []Task, err error) {
+func (m *Manager) AllReminders() (reminders []Reminder, any bool, err error) {
+	rows, err := m.db.Query("SELECT id, hour, description FROM reminders")
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		reminder := Reminder{}
+		rows.Scan(&reminder.ID, &reminder.Hour, &reminder.Description)
+		reminders = append(reminders, reminder)
+        // TODO: find a better way of doing this
+        any = true
+	}
+
+	return
+}
+
+func (m *Manager) AllTasks() (tasks []Task, err error) {
 	rows, err := m.db.Query("SELECT id, taskdate, description, done, (taskdate < datetime('now', 'localtime')) FROM tasks")
 	if err != nil {
 		return
 	}
+	defer rows.Close()
+
 	for rows.Next() {
 		task := Task{}
 		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done, &task.Expired)
 		tasks = append(tasks, task)
 	}
+
 	return
 }
 
-func (m *Manager) Valid() (tasks []Task, err error) {
+func (m *Manager) ValidTasks() (tasks []Task, err error) {
 	rows, err := m.db.Query("SELECT id, taskdate, description, done FROM tasks WHERE date('now', 'localtime') < taskdate AND taskdate < date('now', '+7 days', 'localtime') AND done IS NOT TRUE")
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		task := Task{}
@@ -53,18 +81,20 @@ func (m *Manager) Valid() (tasks []Task, err error) {
 	return
 }
 
-func (m *Manager) NotDone() (tasks []Task, any bool, err error) {
+func (m *Manager) NotDoneTasks() (tasks []Task, any bool, err error) {
 	rows, err := m.db.Query(`SELECT id, taskdate, description, done FROM tasks WHERE taskdate < date('now','-1 days', 'localtime') AND done IS NOT TRUE`)
 	if err != nil {
 		return
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		task := Task{}
 		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
 		tasks = append(tasks, task)
-        any = true
-    }
+        // TODO: find a better way of doing this
+		any = true
+	}
 
 	return
 }
