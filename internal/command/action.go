@@ -50,24 +50,36 @@ func Action(mngr *store.Manager) cli.Action {
 			err   error
 		)
 
-		reminders, any, err := mngr.NotDone()
+		reports, any, err := mngr.NotDoneTasks()
 		if err != nil {
 			println(err.Error())
 			return 1
 		}
 
 		if _, showAll := options["all"]; showAll {
-			tasks, err = mngr.All()
+			tasks, err = mngr.AllTasks()
 		} else {
-			if _, remind := options["reminders"]; any && !remind {
-				printReminders(reminders, verbose)
+			if _, remind := options["reports"]; any && !remind {
+				printReports(reports, verbose)
 			}
-			tasks, err = mngr.Valid()
+			tasks, err = mngr.ValidTasks()
 		}
-		if err != nil {
+
+        reminders, any, err := mngr.AllReminders()
+        if err != nil {
+            println(err.Error())
+            return 1
+        }
+
+        if _, showReminders := options["reminders"]; !showReminders && any {
+            printReminders(reminders, verbose)
+        }
+
+		if err != nil { // err comes from within the previous if statement
 			println(err.Error())
 			return 1
 		}
-		return printTasks(tasks, verbose)
+		printTasks(tasks, verbose)
+        return 0
 	}
 }

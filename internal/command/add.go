@@ -42,6 +42,7 @@ func Add(manager *store.Manager) cli.Command {
             fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
+
 		return 0
 	})
 }

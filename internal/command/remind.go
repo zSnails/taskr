@@ -15,21 +15,34 @@
 package command
 
 import (
+	"fmt"
+	"os"
+	"time"
+
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func Delete(manager *store.Manager) cli.Command {
-	return cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
-		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
-	).WithAction(func(args []string, options map[string]string) int {
-        err := manager.RemoveTask(args[0])
-		if err != nil {
-			println(err.Error())
+func Remind(manager *store.Manager) cli.Command {
+    return cli.NewCommand("remind", "Create a new reminder").WithShortcut("re").WithArg(
+        cli.NewArg("time", "Reminder time").WithType(cli.TypeString),
+    ).WithArg(
+        cli.NewArg("description", "Reminder description").WithType(cli.TypeString),
+    ).WithAction(func(args []string, options map[string]string) int {
+        tm := args[0]
+        t, err := time.Parse("15:4:5", tm)
+        if err != nil {
+            fmt.Fprintf(os.Stderr, err.Error())
             return 1
-		}
+        }
 
-		return 0
-	})
+        desc := args[1]
+        err = manager.AddReminder(t, desc)
+        if err != nil {
+            fmt.Fprintf(os.Stderr, err.Error())
+            return 1
+        }
 
+        return 0
+    })
 }

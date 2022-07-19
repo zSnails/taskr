@@ -25,24 +25,24 @@ import (
 )
 
 var (
-    lang = carbon.NewLanguage()
+	lang = carbon.NewLanguage()
 )
 
 func init() {
-    lang.SetResources(resources.Resources)
+	lang.SetResources(resources.Resources)
 }
 
-func printTasks(tasks []store.Task, verbose bool) int {
+func printTasks(tasks []store.Task, verbose bool) {
 	str := strings.Builder{}
 	for _, task := range tasks {
-        carbonDate := carbon.CreateFromDateTime(
-            task.Date.Year(),
-            int(task.Date.Month()),
-            task.Date.Day(),
-            task.Date.Hour(),
-            task.Date.Minute(),
-            task.Date.Second(),
-        )
+		carbonDate := carbon.CreateFromDateTime(
+			task.Date.Year(),
+			int(task.Date.Month()),
+			task.Date.Day(),
+			task.Date.Hour(),
+			task.Date.Minute(),
+			task.Date.Second(),
+		)
 		var col color.Style
 		if task.Done {
 			col = color.New(color.FgLightGreen, color.OpStrikethrough)
@@ -51,40 +51,61 @@ func printTasks(tasks []store.Task, verbose bool) int {
 		} else {
 			col = color.New(color.FgYellow)
 		}
-        diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
+		diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
 		if verbose {
-            fmt.Fprintf(&str, "[%v] ", task.ID)
+			fmt.Fprintf(&str, "[%d] ", task.ID)
 		}
 
-        fmt.Fprintf(&str, "%v: %v\n", diff, task.Description)
+		fmt.Fprintf(&str, "%s: %s\n", diff, task.Description)
 	}
 
 	fmt.Print(str.String())
-	return 0
 }
 
-func printReminders(tasks []store.Task, verbose bool) {
-    str := strings.Builder{}
-    fmt.Fprintln(&str, "The following tasks have expired but have not\nbeen marked as done:")
-    for _, reminder := range tasks {
-        carbonDate := carbon.CreateFromDateTime(
-            reminder.Date.Year(),
-            int(reminder.Date.Month()),
-            reminder.Date.Day(),
-            reminder.Date.Hour(),
-            reminder.Date.Minute(),
-            reminder.Date.Second(),
-        )
+func printReports(tasks []store.Task, verbose bool) {
+	str := strings.Builder{}
+	fmt.Fprintln(&str, "The following tasks have expired but have not\nbeen marked as done:")
+	for _, report := range tasks {
+		carbonDate := carbon.CreateFromDateTime(
+			report.Date.Year(),
+			int(report.Date.Month()),
+			report.Date.Day(),
+			report.Date.Hour(),
+			report.Date.Minute(),
+			report.Date.Second(),
+		)
 
-        col := color.New(color.FgRed)
-        diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
-        fmt.Fprint(&str, "\t- ")
-        if verbose {
-            fmt.Fprintf(&str, "[%v] ", reminder.ID)
-        }
+		col := color.New(color.FgRed)
+		diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
+		fmt.Fprint(&str, "\t- ")
+		if verbose {
+			fmt.Fprintf(&str, "[%d] ", report.ID)
+		}
 
-        fmt.Fprintf(&str, "%v: %v\n", diff, reminder.Description)
-    }
+		fmt.Fprintf(&str, "%s: %s\n", diff, report.Description)
+	}
 
-    fmt.Print(str.String())
+	fmt.Print(str.String())
+}
+
+func printReminders(reminders []store.Reminder, verbose bool) {
+	str := strings.Builder{}
+	fmt.Fprintln(&str, "Remember to do these today:")
+	for _, reminder := range reminders {
+		carbonDate := carbon.CreateFromTime(
+			reminder.Hour.Hour(),
+			reminder.Hour.Minute(),
+			reminder.Hour.Second(),
+		)
+		col := color.New(color.FgLightBlue)
+		diff := col.Render(carbonDate.SetLanguage(lang).DiffForHumans())
+		fmt.Fprintf(&str, "\t- ")
+		if verbose {
+			fmt.Fprintf(&str, "[%d] ", reminder.ID)
+		}
+
+		fmt.Fprintf(&str, "%s: %s\n", diff, reminder.Description)
+	}
+
+	fmt.Print(str.String())
 }

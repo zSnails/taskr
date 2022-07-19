@@ -19,17 +19,16 @@ import (
 	"github.com/zSnails/taskr/internal/store"
 )
 
-func Delete(manager *store.Manager) cli.Command {
-	return cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
-		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
-	).WithAction(func(args []string, options map[string]string) int {
-        err := manager.RemoveTask(args[0])
-		if err != nil {
-			println(err.Error())
+func Forget(manager *store.Manager) cli.Command {
+    return cli.NewCommand("forget", "Forget a reminder").WithShortcut("ff").WithArg(
+        cli.NewArg("id", "Reminder id to delete").WithType(cli.TypeInt),
+    ).WithAction(func(args []string, options map[string]string) int {
+        err := manager.RemoveReminder(args[0])
+        if err != nil {
+            println(err.Error())
             return 1
-		}
+        }
 
-		return 0
-	})
-
+        return 0
+    })
 }
