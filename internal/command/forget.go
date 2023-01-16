@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,20 +15,23 @@
 package command
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
 
 func Forget(manager *store.Manager) cli.Command {
-    return cli.NewCommand("forget", "Forget a reminder").WithShortcut("ff").WithArg(
-        cli.NewArg("id", "Reminder id to delete").WithType(cli.TypeInt),
-    ).WithAction(func(args []string, options map[string]string) int {
-        err := manager.RemoveReminder(args[0])
-        if err != nil {
-            println(err.Error())
-            return 1
-        }
+	return cli.NewCommand("forget", "Forget a reminder").WithShortcut("ff").WithArg(
+		cli.NewArg("id", "Reminder id to delete").WithType(cli.TypeInt),
+	).WithAction(func(args []string, options map[string]string) int {
+		err := manager.RemoveReminder(args[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+			return 1
+		}
 
-        return 0
-    })
+		return 0
+	})
 }

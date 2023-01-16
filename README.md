@@ -27,7 +27,7 @@ go install github.com/zSnails/taskr@latest
 taskr new <date> <description>
 # this will create a new task
 # for example
-taskr new "2022-04-16 7:0:0" "Go to my grandma's birthday"
+taskr new "2023-04-16 7:0:0" "Go to my grandma's birthday"
 
 taskr delete <id>
 # this will delete a task with the id <id>

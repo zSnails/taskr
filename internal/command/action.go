@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@ package command
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gookit/color"
 	"github.com/teris-io/cli"
@@ -26,7 +27,7 @@ var (
 	BuildUser  = ""
 	Version    = ""
 	CommitHash = ""
-	license    = "Copyright (C) 2022 zSnails\nThis program comes with ABSOLUTELY NO warranty\nThis is free software, and you are welcome to redistribute it\nunder certain conditions."
+	license    = "Copyright (C) 2023 zSnails\nThis program comes with ABSOLUTELY NO warranty\nThis is free software, and you are welcome to redistribute it\nunder certain conditions."
 )
 
 func Action(mngr *store.Manager) cli.Action {
@@ -52,7 +53,7 @@ func Action(mngr *store.Manager) cli.Action {
 
 		reports, any, err := mngr.NotDoneTasks()
 		if err != nil {
-			println(err.Error())
+			fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 
@@ -65,21 +66,21 @@ func Action(mngr *store.Manager) cli.Action {
 			tasks, err = mngr.ValidTasks()
 		}
 
-        reminders, any, err := mngr.AllReminders()
-        if err != nil {
-            println(err.Error())
-            return 1
-        }
+		reminders, any, err := mngr.AllReminders()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, err.Error())
+			return 1
+		}
 
-        if _, showReminders := options["reminders"]; !showReminders && any {
-            printReminders(reminders, verbose)
-        }
+		if _, showReminders := options["reminders"]; !showReminders && any {
+			printReminders(reminders, verbose)
+		}
 
 		if err != nil { // err comes from within the previous if statement
-			println(err.Error())
+			fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 		printTasks(tasks, verbose)
-        return 0
+		return 0
 	}
 }

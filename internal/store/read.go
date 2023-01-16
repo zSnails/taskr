@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -43,9 +43,9 @@ func (m *Manager) AllReminders() (reminders []Reminder, any bool, err error) {
 		reminder := Reminder{}
 		rows.Scan(&reminder.ID, &reminder.Hour, &reminder.Description)
 		reminders = append(reminders, reminder)
-        // TODO: find a better way of doing this
-        any = true
 	}
+
+	any = len(reminders) != 0
 
 	return
 }
@@ -78,6 +78,7 @@ func (m *Manager) ValidTasks() (tasks []Task, err error) {
 		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
 		tasks = append(tasks, task)
 	}
+
 	return
 }
 
@@ -92,9 +93,9 @@ func (m *Manager) NotDoneTasks() (tasks []Task, any bool, err error) {
 		task := Task{}
 		rows.Scan(&task.ID, &task.Date, &task.Description, &task.Done)
 		tasks = append(tasks, task)
-        // TODO: find a better way of doing this
-		any = true
 	}
+
+	any = len(tasks) != 0
 
 	return
 }

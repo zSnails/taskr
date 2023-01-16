@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ func printTasks(tasks []store.Task, verbose bool) {
 		fmt.Fprintf(&str, "%s: %s\n", diff, task.Description)
 	}
 
-	fmt.Print(str.String())
+	fmt.Printf("%s", str)
 }
 
 func printReports(tasks []store.Task, verbose bool) {
@@ -85,7 +85,7 @@ func printReports(tasks []store.Task, verbose bool) {
 		fmt.Fprintf(&str, "%s: %s\n", diff, report.Description)
 	}
 
-	fmt.Print(str.String())
+	fmt.Printf("%s", str)
 }
 
 func printReminders(reminders []store.Reminder, verbose bool) {
@@ -107,5 +107,5 @@ func printReminders(reminders []store.Reminder, verbose bool) {
 		fmt.Fprintf(&str, "%s: %s\n", diff, reminder.Description)
 	}
 
-	fmt.Print(str.String())
+	fmt.Printf("%s", str)
 }

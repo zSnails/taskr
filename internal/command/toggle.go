@@ -1,4 +1,4 @@
-// copyright (c) 2022  aaron gonzález
+// copyright (c) 2023  aaron gonzález
 
 // this program is free software: you can redistribute it and/or modify
 // it under the terms of the gnu general public license as published by
@@ -15,6 +15,9 @@
 package command
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
@@ -25,7 +28,7 @@ func Toggle(mngr *store.Manager) cli.Command {
 	).WithAction(func(args []string, options map[string]string) int {
 		err := mngr.ToggleStatus(args[0])
 		if err != nil {
-			println(err.Error())
+			fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 

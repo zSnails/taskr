@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ func Add(manager *store.Manager) cli.Command {
 		desc := args[1]
 		err = manager.AddTask(t, desc)
 		if err != nil {
-            fmt.Fprintf(os.Stderr, err.Error())
+			fmt.Fprintf(os.Stderr, err.Error())
 			return 1
 		}
 

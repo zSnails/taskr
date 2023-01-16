@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,6 +15,9 @@
 package command
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/teris-io/cli"
 	"github.com/zSnails/taskr/internal/store"
 )
@@ -23,10 +26,10 @@ func Delete(manager *store.Manager) cli.Command {
 	return cli.NewCommand("delete", "Delete a task").WithShortcut("d").WithArg(
 		cli.NewArg("id", "Task id to delete").WithType(cli.TypeInt),
 	).WithAction(func(args []string, options map[string]string) int {
-        err := manager.RemoveTask(args[0])
+		err := manager.RemoveTask(args[0])
 		if err != nil {
-			println(err.Error())
-            return 1
+			fmt.Fprintf(os.Stderr, err.Error())
+			return 1
 		}
 
 		return 0

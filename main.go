@@ -1,4 +1,4 @@
-// Copyright (C) 2022  Aaron González
+// Copyright (C) 2023  Aaron González
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	"github.com/teris-io/cli"
@@ -60,27 +61,26 @@ func main() {
 	defer db.Close()
 
 	mngr, err := store.NewManager(db)
-    if err != nil {
-        panic(err)
-    }
-
+	if err != nil {
+		panic(err)
+	}
 	defer mngr.Close()
 
 	app := cli.New("Tool for creating tasks")
 	app.WithAction(command.Action(mngr))
 	app.
-        WithCommand(command.Add(mngr)).
-        WithCommand(command.Delete(mngr)).
-        WithCommand(command.Toggle(mngr)).
-        WithCommand(command.Remind(mngr)).
-        WithCommand(command.Forget(mngr))
+		WithCommand(command.Add(mngr)).
+		WithCommand(command.Delete(mngr)).
+		WithCommand(command.Toggle(mngr)).
+		WithCommand(command.Remind(mngr)).
+		WithCommand(command.Forget(mngr))
 
 	app.WithOption(cli.NewOption("verbose", "Show verbose output").WithType(cli.TypeBool).WithChar('v'))
 	app.WithOption(cli.NewOption("no-color", "Disable colored output").WithType(cli.TypeBool).WithChar('c'))
 	app.WithOption(cli.NewOption("version", "Shows program version info").WithType(cli.TypeBool).WithChar('V'))
 	app.WithOption(cli.NewOption("all", "Shows all tasks").WithType(cli.TypeBool).WithChar('a'))
 	app.WithOption(cli.NewOption("reports", "Whether or not to show expiration reports").WithType(cli.TypeBool).WithChar('r'))
-    app.WithOption(cli.NewOption("reminders", "Whether or not to show reminders").WithType(cli.TypeBool).WithChar('R'))
+	app.WithOption(cli.NewOption("reminders", "Whether or not to show reminders").WithType(cli.TypeBool).WithChar('R'))
 
 	os.Exit(app.Run(os.Args, os.Stdout))
 }
